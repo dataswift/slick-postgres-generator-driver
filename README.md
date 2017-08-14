@@ -2,16 +2,30 @@
 
 Current Version: 0.0.2-SNAPSHOT
 
-This repository provides convenience wrappers around HAT HTTP APIs and contains 
-the most up-to-date set of typesafe HAT Data Models and Play-JSON based
-serializers and deserializers for them.
-
-It relies on Play-WS for an asynchronous HTTP client.
+Slick PostgreSQL Code generator and Driver with useful extensions
 
 ## Usage
 
+To use the sbt plugin in your project, add this to `plugins.sbt`:
+
+```
+    resolvers += "HAT Library Artifacts Snapshots" at "https://s3-eu-west-1.amazonaws.com/library-artifacts-snapshots.hubofallthings.com"
+    addSbtPlugin("org.hatdex" % "sbt-slick-postgres-generator" % "0.0.2-SNAPSHOT")
+```
+
+Similarly, for the driver library, add it to your `build.sbt`:
+
+```
+    libraryDependencies += "org.hatdex" %% "slick-postgres-driver" % "0.0.2-SNAPSHOT"
+```
+
 ## Publishing
 
-To publish cross-compiled versions:
+To publish sbt plugin:
 
-    sbt "+ publish"
+    sbt "project sbt-slick-postgres-generator" "publish"
+
+To publish the driver:
+
+    sbt "project slick-postgres-driver" "+ publish"
+

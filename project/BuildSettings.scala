@@ -1,10 +1,9 @@
 /*
- * Copyright (C) 2016 HAT Data Exchange Ltd - All Rights Reserved
+ * Copyright (C) $year HAT Data Exchange Ltd - All Rights Reserved
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * Written by Andrius Aucinas <andrius.aucinas@hatdex.org>, 2 / 2017
- *
+ * Written by Andrius Aucinas <andrius.aucinas@hatdex.org>, 14/08/17 09:17
  */
 
 import sbt.Keys._
@@ -25,12 +24,12 @@ object BasicSettings extends AutoPlugin {
     name := "slick-postgres-generator-driver",
     description := "Slick PostgreSQL Code generator and Driver with useful extensions",
     licenses += ("Mozilla Public License 2.0", url("https://www.mozilla.org/en-US/MPL/2.0")),
-//    scmInfo := Some(
-//      ScmInfo(
-//        url("https://github.com/Hub-of-all-Things/hat-client-scala-play"),
-//        "scm:git@github.com:Hub-of-all-Things/hat-client-scala-play.git"
-//      )
-//    ),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/Hub-of-all-Things/slick-postgres-generator-driver"),
+        "scm:git@github.com:Hub-of-all-Things/slick-postgres-generator-driver.git"
+      )
+    ),
     homepage := Some(url("https://hubofallthings.com")),
     developers := List(
       Developer(

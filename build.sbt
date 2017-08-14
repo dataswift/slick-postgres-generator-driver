@@ -1,23 +1,32 @@
-import Dependencies._
+import sbt.Keys.sbtPlugin
 
-libraryDependencies ++= Seq(
-  Library.Db.postgres,
-  Library.Db.hikariCP,
-  Library.Db.liquibase,
-  Library.Slick.slickCodegen,
-  Library.Slick.slickHikari,
-  Library.Slick.slickPg,
-  Library.Slick.slickPgCore,
-  Library.Slick.slickPgJoda,
-  Library.Slick.slickPgJts,
-  Library.Slick.slickPgPlayJson,
-  Library.Utils.jodaTime,
-  Library.Utils.slf4j
+lazy val driver = Project(
+  id = "slick-postgres-driver",
+  base = file("slick-postgres-driver")
 )
 
-sbtPlugin := true
+lazy val plugin = Project(
+  id = "sbt-slick-postgres-generator",
+  base = file("sbt-slick-postgres-generator"),
+  dependencies = Seq(driver % "compile->compile;test->test")
+).settings(
+  scalaVersion := "2.10.6",
+  crossScalaVersions := Seq("2.10.6"),
+  name := "sbt-slick-postgres-generator"
+)
 
-publishTo := {
-  val prefix = if (isSnapshot.value) "snapshots" else "releases"
-  Some(s3resolver.value("HAT Library Artifacts " + prefix, s3("library-artifacts-" + prefix + ".hubofallthings.com")) withMavenPatterns)
-}
+val root = Project(
+  id = "slick-postgres-generator-driver",
+  base = file("."),
+  aggregate = Seq(
+    driver,
+    plugin
+  ),
+  settings = Defaults.coreDefaultSettings ++
+    // APIDoc.settings ++
+    Seq(
+      publishLocal := {},
+      publishM2 := {},
+      publishArtifact := false
+    )
+)

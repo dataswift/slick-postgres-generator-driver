@@ -9,9 +9,9 @@
 package org.hatdex.libs.dal
 
 import java.sql.Timestamp
-import java.time.ZonedDateTime
 
 import com.github.tminglei.slickpg._
+import org.joda.time.DateTime
 import play.api.libs.json.{ JsValue, Json }
 import slick.jdbc.JdbcType
 
@@ -68,7 +68,7 @@ trait SlickPostgresDriver extends ExPostgresDriver
 
     val toJson: Rep[String] => Rep[JsValue] = SimpleFunction.unary[String, JsValue]("to_jsonb")
     val toTimestamp: Rep[Double] => Rep[Timestamp] = SimpleFunction.unary[Double, Timestamp]("to_timestamp")
-    val datePart: (Rep[String], Rep[ZonedDateTime]) => Rep[String] = SimpleFunction.binary[String, ZonedDateTime, String]("date_part")
+    val datePart: (Rep[String], Rep[DateTime]) => Rep[String] = SimpleFunction.binary[String, DateTime, String]("date_part")
     val datePartTimestamp: (Rep[String], Rep[Timestamp]) => Rep[String] = SimpleFunction.binary[String, Timestamp, String]("date_part")
   }
 

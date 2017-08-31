@@ -168,7 +168,7 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
     }
   }
 
-  private def createLiquibase(dbConnection: Connection, diffFilePath: String): Liquibase = {
+  protected def createLiquibase(dbConnection: Connection, diffFilePath: String): Liquibase = {
     val classLoader = configuration.getClass.getClassLoader
     val resourceAccessor = new ClassLoaderResourceAccessor(classLoader)
 

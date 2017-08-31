@@ -26,21 +26,24 @@ class TypemappedPgCodeGenerator(model: Model) extends SourceCodeGenerator(model)
         }).getOrElse("org.joda.time.LocalDateTime")
         // currently, all types that's not built-in support were mapped to `String`
         case "String" => model.options.find(_.isInstanceOf[ColumnOption.SqlType]).map(_.asInstanceOf[ColumnOption.SqlType].typeName).map({
-          case "hstore"   => "Map[String, String]"
-          case "geometry" => "com.vividsolutions.jts.geom.Geometry"
-          case "int8[]"   => "List[Long]"
-          case "int4[]"   => "List[Int]"
-          case "text[]"   => "List[String]"
-          case "varchar"  => "String"
-          case "_int4"    => "List[Int]"
-          case "_text"    => "List[String]"
-          case "jsonb"    => "play.api.libs.json.JsValue"
-          case "_jsonb"   => "List[play.api.libs.json.JsValue]"
-          case _          => "String"
+          case "hstore"    => "Map[String, String]"
+          case "geometry"  => "com.vividsolutions.jts.geom.Geometry"
+          case "int8[]"    => "List[Long]"
+          case "int4[]"    => "List[Int]"
+          case "text[]"    => "List[String]"
+          case "varchar[]" => "List[String]"
+          case "varchar"   => "String"
+          case "_int4"     => "List[Int]"
+          case "_varchar"  => "List[String]"
+          case "_text"     => "List[String]"
+          case "jsonb"     => "play.api.libs.json.JsValue"
+          case "_jsonb"    => "List[play.api.libs.json.JsValue]"
+          case _           => "String"
         }).getOrElse("String")
         case "scala.collection.Seq" => model.options.find(_.isInstanceOf[ColumnOption.SqlType]).map(_.asInstanceOf[ColumnOption.SqlType].typeName).map({
-          case "_text" => "List[String]"
-          case _       => "String"
+          case "_text"    => "List[String]"
+          case "_varchar" => "List[String"
+          case _          => "String"
         }).getOrElse("String")
         case _ => super.rawType
       }

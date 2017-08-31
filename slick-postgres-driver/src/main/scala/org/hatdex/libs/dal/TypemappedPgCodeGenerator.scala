@@ -42,7 +42,7 @@ class TypemappedPgCodeGenerator(model: Model) extends SourceCodeGenerator(model)
         }).getOrElse("String")
         case "scala.collection.Seq" => model.options.find(_.isInstanceOf[ColumnOption.SqlType]).map(_.asInstanceOf[ColumnOption.SqlType].typeName).map({
           case "_text"    => "List[String]"
-          case "_varchar" => "List[String"
+          case "_varchar" => "List[String]"
           case _          => "String"
         }).getOrElse("String")
         case _ => super.rawType

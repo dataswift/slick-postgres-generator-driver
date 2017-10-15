@@ -11,7 +11,7 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val crossScala = Seq("2.10.6", "2.11.8")
+    val crossScala = Seq("2.12.4")
     val scalaVersion = crossScala.head
   }
 
@@ -23,16 +23,15 @@ object Dependencies {
   object Library {
     object Db {
       val liquibase = "org.liquibase" % "liquibase-maven-plugin" % "3.5.1"
-      val postgres = "org.postgresql" % "postgresql" % "9.4-1206-jdbc4"
-      val hikariCP = "com.zaxxer" % "HikariCP" % "2.5.0"
+      val postgres = "org.postgresql" % "postgresql" % "42.1.1"
     }
 
     object Slick {
-      private val slickVersion = "3.1.1"
+      private val slickVersion = "3.2.1"
       val slick = "com.typesafe.slick" %% "slick" % slickVersion
       val slickHikari = "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
       val slickCodegen = "com.typesafe.slick" %% "slick-codegen" % slickVersion
-      val slick_pgV = "0.14.6"
+      val slick_pgV = "0.15.4"
       val slickPgCore = "com.github.tminglei" %% "slick-pg_core" % slick_pgV
       val slickPg = "com.github.tminglei" %% "slick-pg" % slick_pgV
       val slickPgJoda = "com.github.tminglei" %% "slick-pg_joda-time" % slick_pgV

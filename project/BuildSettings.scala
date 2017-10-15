@@ -6,6 +6,7 @@
  * Written by Andrius Aucinas <andrius.aucinas@hatdex.org>, 14/08/17 09:17
  */
 
+import com.typesafe.sbt.SbtScalariform
 import sbt.Keys._
 import sbt._
 
@@ -17,7 +18,7 @@ object BasicSettings extends AutoPlugin {
 
   override def projectSettings = Seq(
     organization := "org.hatdex",
-    version := "0.0.2-SNAPSHOT",
+    version := "0.0.4-SNAPSHOT",
     resolvers ++= Dependencies.resolvers,
     scalaVersion := Dependencies.Versions.scalaVersion,
     crossScalaVersions := Dependencies.Versions.crossScala,
@@ -64,42 +65,24 @@ object BasicSettings extends AutoPlugin {
     javaOptions += "-Xmx1G")
 }
 
-////*******************************
-//// Scalariform settings
-////*******************************
+//*******************************
+// Scalariform settings
+//*******************************
 object CodeFormatter extends AutoPlugin {
 
-  import com.typesafe.sbt.SbtScalariform._
-
-  import scalariform.formatter.preferences._
-
-  lazy val BuildConfig = config("build") extend Compile
-  lazy val BuildSbtConfig = config("buildsbt") extend Compile
+   import com.typesafe.sbt.SbtScalariform._
+   import scalariform.formatter.preferences._
 
   lazy val prefs = Seq(
     ScalariformKeys.preferences := ScalariformKeys.preferences.value
-      .setPreference(FormatXml, false)
-      .setPreference(DoubleIndentClassDeclaration, true)
-      .setPreference(AlignSingleLineCaseStatements, true)
-      .setPreference(CompactControlReadability, true)
-      .setPreference(DanglingCloseParenthesis, Prevent))
+     .setPreference(FormatXml, false)
+     .setPreference(DoubleIndentConstructorArguments, true)
+     .setPreference(AlignSingleLineCaseStatements, true)
+     .setPreference(CompactControlReadability, true)
+     .setPreference(DanglingCloseParenthesis, Prevent))
 
-  override def trigger = allRequirements
-
-  override def projectSettings = defaultScalariformSettings ++ prefs ++
-    inConfig(BuildConfig)(configScalariformSettings) ++
-    inConfig(BuildSbtConfig)(configScalariformSettings) ++
-    Seq(
-      scalaSource in BuildConfig := baseDirectory.value / "project",
-      scalaSource in BuildSbtConfig := baseDirectory.value / "project",
-      includeFilter in (BuildConfig, ScalariformKeys.format) := ("*.scala": FileFilter),
-      includeFilter in (BuildSbtConfig, ScalariformKeys.format) := ("*.sbt": FileFilter),
-      ScalariformKeys.format in Compile := {
-        (ScalariformKeys.format in BuildSbtConfig).value
-        (ScalariformKeys.format in BuildConfig).value
-        (ScalariformKeys.format in Compile).value
-      })
-}
+   override def projectSettings = scalariformSettings ++ prefs
+ }
 
 //*******************************
 // ScalaDoc settings

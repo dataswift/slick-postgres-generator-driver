@@ -9,27 +9,40 @@
 package org.hatdex.libs.dal
 
 import com.typesafe.config.Config
-import org.hatdex.libs.dal.SlickPostgresDriver.api._
+import org.hatdex.libs.dal.HATPostgresProfile.api._
 import slick.jdbc.meta.MTable
 import slick.model.Model
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{ Failure, Success }
 
 class DatabaseCodeGenerator(config: Config) {
-  protected def modelFuture(database: String, excludedTables: Seq[String]): Future[Model] = {
-    Database.forConfig(database, config).run {
-      MTable.getTables(None, None, None, Some(Seq("TABLE", "VIEW"))) //TABLE, and VIEW represent metadata, i.e. get database objects which are tables and views
-        .map(_.filterNot(t => excludedTables contains t.name.name))
-        .flatMap(SlickPostgresDriver.createModelBuilder(_, ignoreInvalidDefaults = false).buildModel)
-    }
-  }
-
   def generate(outputDir: String, packageName: String, className: String = "Tables",
     database: String = "devdb", excludedTables: Seq[String] = Seq("databasechangelog", "databasechangeloglock")): Future[Unit] = {
 
     modelFuture(database, excludedTables)
+      .andThen {
+        case Success(_) => println("Successfully retrieved database model")
+        case Failure(e) => println(s"Failed to fetch database model: ${e.getMessage}")
+      }
       .map(model => new TypemappedPgCodeGenerator(model))
-      .map(_.writeToFile("org.hatdex.libs.dal.SlickPostgresDriver", outputDir, packageName, className, s"$className.scala"))
+      .andThen {
+        case Success(_) => println("Successfully generated code")
+        case Failure(e) => println(s"Failed to generate code: ${e.getMessage}")
+      }
+      .map(_.writeToFile("org.hatdex.libs.dal.HATPostgresProfile", outputDir, packageName, className, s"$className.scala"))
+      .andThen {
+        case Success(_) => println("Successfully wrote code to file")
+        case Failure(e) => println(s"Failed to write code to file: ${e.getMessage}")
+      }
+  }
+
+  protected def modelFuture(database: String, excludedTables: Seq[String]): Future[Model] = {
+    Database.forConfig(database, config).run {
+      MTable.getTables(None, None, None, Some(Seq("TABLE", "VIEW"))) //TABLE, and VIEW represent metadata, i.e. get database objects which are tables and views
+        .map(_.filterNot(t => excludedTables contains t.name.name))
+        .flatMap(HATPostgresProfile.createModelBuilder(_, ignoreInvalidDefaults = false).buildModel)
+    }
   }
 }

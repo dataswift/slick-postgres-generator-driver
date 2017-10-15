@@ -43,18 +43,19 @@ object SlickCodeGeneratorPlugin extends AutoPlugin {
           (codegenClassName in gentables).value,
           (codegenDatabase in gentables).value,
           (codegenExcludedTables in gentables).value)
-      },
-      //      codegenOutputDir in gentables := (baseDirectory.value / "project").getPath,
-      //      codegenPackageName in gentables := "dal",
-      codegenClassName in gentables := "Tables",
-      codegenDatabase in gentables := "devdb",
-      codegenExcludedTables in gentables := Seq("databasechangelog", "databasechangeloglock"))
+      }
+    //      codegenOutputDir in gentables := (baseDirectory.value / "project").getPath,
+    //      codegenPackageName in gentables := "dal",
+    //      codegenClassName in gentables := "Tables",
+    //      codegenDatabase in gentables := "devdb",
+    //      codegenExcludedTables in gentables := Seq("databasechangelog", "databasechangeloglock")
+    )
   }
 
   import autoImport._
 
   // a group of settings that are automatically added to projects.
-  override lazy val projectSettings = inConfig(Compile)(codegenSettings)
+  override lazy val projectSettings: Seq[Def.Setting[_]] = inConfig(Compile)(codegenSettings)
 
   object Generator {
     def apply(config: Config, outputDir: String, packageName: String, className: String,

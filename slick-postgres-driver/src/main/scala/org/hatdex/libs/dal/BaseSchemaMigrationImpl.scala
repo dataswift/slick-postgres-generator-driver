@@ -15,9 +15,9 @@ import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
 import liquibase.{ Contexts, LabelExpression, Liquibase }
-import org.hatdex.libs.dal.SlickPostgresDriver.api.Database
+import org.hatdex.libs.dal.HATPostgresProfile.api.Database
 import org.slf4j.{ Logger => Slf4jLogger }
-import slick.driver.JdbcProfile
+import slick.jdbc.JdbcProfile
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ ExecutionContext, Future, blocking }
@@ -77,17 +77,16 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       }
     }
 
-    eventuallyEvolved onFailure {
-      case e =>
-        logger.error(s"Error updating database: ${e.getMessage}")
+    eventuallyEvolved.failed.foreach { e =>
+      logger.error(s"Error updating database: ${e.getMessage}")
     }
 
     eventuallyEvolved
   }
 
-  def rollback(changeLogFiles: Seq[String])(implicit db: Database): Future[Unit] = {
+  def rollback(changeLogFiles: Seq[String]): Future[Unit] = {
     logger.info(s"Rolling back schema migrations: ${changeLogFiles.mkString(", ")}")
-    changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) => execution.flatMap { _ => updateDb(evolution) } }
+    changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) => execution.flatMap { _ => rollbackDb(evolution) } }
   }
 
   private def updateDb(diffFilePath: String): Future[Unit] = {
@@ -114,9 +113,8 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       }
     }
 
-    eventuallyEvolved onFailure {
-      case e =>
-        logger.error(s"Error updating database: ${e.getMessage}")
+    eventuallyEvolved.failed.foreach { e =>
+      logger.error(s"Error updating database: ${e.getMessage}")
     }
 
     eventuallyEvolved
@@ -146,9 +144,8 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       }
     }
 
-    eventuallyEvolved onFailure {
-      case e =>
-        logger.error(s"Error updating database: ${e.getMessage}")
+    eventuallyEvolved.failed.foreach { e =>
+      logger.error(s"Error updating database: ${e.getMessage}")
     }
 
     eventuallyEvolved
@@ -161,8 +158,7 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
     changesetStatuses.foreach { cs =>
       if (cs.getWillRun) {
         logger.info(s"${cs.getChangeSet.toString} will run")
-      }
-      else {
+      } else {
         logger.info(s"${cs.getChangeSet.toString} will not run - previously executed on ${cs.getDateLastExecuted}")
       }
     }

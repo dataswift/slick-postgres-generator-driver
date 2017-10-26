@@ -15,26 +15,26 @@ import org.joda.time.DateTime
 import play.api.libs.json.{ JsValue, Json }
 import slick.jdbc.JdbcType
 
-trait HATPostgresProfile extends ExPostgresDriver
-    with PgArraySupport
-    with PgDateSupportJoda
-    with PgRangeSupport
-    with PgHStoreSupport
-    with PgSearchSupport
-    with PgPlayJsonSupport
-    with PgPostGISSupport {
+trait HATPostgresProfile extends ExPostgresProfile
+  with PgArraySupport
+  with PgDateSupportJoda
+  with PgRangeSupport
+  with PgHStoreSupport
+  with PgSearchSupport
+  with PgPlayJsonSupport {
 
   override val pgjson = "jsonb"
-  override val api = MyAPI
+  override val api = new API {}
   override protected lazy val useTransactionForUpsert = false
 
-  object MyAPI extends API with ArrayImplicits
-      with DateTimeImplicits
-      with RangeImplicits
-      with HStoreImplicits
-      with SearchImplicits
-      with PlayJsonImplicits
-      with SearchAssistants {
+  trait API extends super.API
+    with ArrayImplicits
+    with DateTimeImplicits
+    with RangeImplicits
+    with HStoreImplicits
+    with SearchImplicits
+    with PlayJsonImplicits
+    with SearchAssistants {
 
     implicit val playJsonArrayTypeMapper: DriverJdbcType[List[JsValue]] =
       new AdvancedArrayJdbcType[JsValue](
@@ -59,8 +59,8 @@ trait HATPostgresProfile extends ExPostgresDriver
     }
 
     class FixedJsonColumnExtensionMethods[JSONType, P1](override val c: Rep[P1])(
-        implicit
-        tm: JdbcType[JSONType]) extends JsonColumnExtensionMethods[JSONType, P1](c) {
+      implicit
+      tm: JdbcType[JSONType]) extends JsonColumnExtensionMethods[JSONType, P1](c) {
       override def <@:[P2, R](c2: Rep[P2])(implicit om: o#arg[JSONType, P2]#to[Boolean, R]) = {
         om.column(jsonLib.ContainsBy, n, c2.toNode)
       }

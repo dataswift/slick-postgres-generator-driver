@@ -1,14 +1,13 @@
 import Dependencies._
 
 libraryDependencies ++= Seq(
-  Library.Db.postgres,
   Library.Db.liquibase,
-  Library.Slick.slickCodegen,
+  Library.Slick.slick,
   Library.Slick.slickHikari,
+  Library.Slick.slickCodegen,
   Library.Slick.slickPg,
   Library.Slick.slickPgCore,
   Library.Slick.slickPgJoda,
-  Library.Slick.slickPgJts,
   Library.Slick.slickPgPlayJson
 )
 

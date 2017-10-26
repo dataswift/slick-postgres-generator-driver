@@ -23,8 +23,6 @@ object Dependencies {
   object Library {
     object Db {
       val liquibase = "org.liquibase" % "liquibase-maven-plugin" % "3.5.1"
-      val postgres = "org.postgresql" % "postgresql" % "9.4-1206-jdbc4"
-      val hikariCP = "com.zaxxer" % "HikariCP" % "2.5.0"
     }
 
     object Slick {

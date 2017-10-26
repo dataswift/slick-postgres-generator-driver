@@ -21,8 +21,7 @@ trait HATPostgresProfile extends ExPostgresDriver
     with PgRangeSupport
     with PgHStoreSupport
     with PgSearchSupport
-    with PgPlayJsonSupport
-    with PgPostGISSupport {
+    with PgPlayJsonSupport {
 
   override val pgjson = "jsonb"
   override val api = MyAPI

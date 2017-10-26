@@ -9,7 +9,7 @@
 package org.hatdex.libs.dal
 
 import com.typesafe.config.Config
-import org.hatdex.libs.dal.SlickPostgresDriver.api._
+import org.hatdex.libs.dal.HATPostgresProfile.api._
 import slick.jdbc.meta.MTable
 import slick.model.Model
 
@@ -21,7 +21,7 @@ class DatabaseCodeGenerator(config: Config) {
     Database.forConfig(database, config).run {
       MTable.getTables(None, None, None, Some(Seq("TABLE", "VIEW"))) //TABLE, and VIEW represent metadata, i.e. get database objects which are tables and views
         .map(_.filterNot(t => excludedTables contains t.name.name))
-        .flatMap(SlickPostgresDriver.createModelBuilder(_, ignoreInvalidDefaults = false).buildModel)
+        .flatMap(HATPostgresProfile.createModelBuilder(_, ignoreInvalidDefaults = false).buildModel)
     }
   }
 

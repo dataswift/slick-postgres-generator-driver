@@ -15,7 +15,7 @@ import org.joda.time.DateTime
 import play.api.libs.json.{ JsValue, Json }
 import slick.jdbc.JdbcType
 
-trait SlickPostgresDriver extends ExPostgresDriver
+trait HATPostgresProfile extends ExPostgresDriver
     with PgArraySupport
     with PgDateSupportJoda
     with PgRangeSupport
@@ -74,4 +74,4 @@ trait SlickPostgresDriver extends ExPostgresDriver
 
 }
 
-object SlickPostgresDriver extends SlickPostgresDriver
+object HATPostgresProfile extends HATPostgresProfile

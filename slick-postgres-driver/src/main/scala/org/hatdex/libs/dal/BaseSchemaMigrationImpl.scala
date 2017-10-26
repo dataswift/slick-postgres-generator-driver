@@ -15,7 +15,7 @@ import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
 import liquibase.{ Contexts, LabelExpression, Liquibase }
-import org.hatdex.libs.dal.SlickPostgresDriver.api.Database
+import org.hatdex.libs.dal.HATPostgresProfile.api.Database
 import org.slf4j.{ Logger => Slf4jLogger }
 import slick.driver.JdbcProfile
 

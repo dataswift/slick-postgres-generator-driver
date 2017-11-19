@@ -14,12 +14,12 @@ import com.typesafe.config.Config
 import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
-import liquibase.{ Contexts, LabelExpression, Liquibase }
-import org.slf4j.{ Logger => Slf4jLogger }
+import liquibase.{Contexts, LabelExpression, Liquibase}
+import org.slf4j.{Logger => Slf4jLogger}
 import slick.jdbc.JdbcProfile
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{ ExecutionContext, Future, blocking }
+import scala.concurrent.{ExecutionContext, Future, blocking}
 import scala.util.Try
 
 /**

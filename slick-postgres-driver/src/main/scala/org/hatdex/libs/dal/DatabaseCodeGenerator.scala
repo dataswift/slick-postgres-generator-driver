@@ -18,6 +18,14 @@ import scala.concurrent.Future
 import scala.util.{ Failure, Success }
 
 class DatabaseCodeGenerator(config: Config) {
+  protected def modelFuture(database: String, excludedTables: Seq[String]): Future[Model] = {
+    Database.forConfig(database, config).run {
+      MTable.getTables(None, None, None, Some(Seq("TABLE", "VIEW"))) //TABLE, and VIEW represent metadata, i.e. get database objects which are tables and views
+        .map(_.filterNot(t => excludedTables contains t.name.name))
+        .flatMap(HATPostgresProfile.createModelBuilder(_, ignoreInvalidDefaults = false).buildModel)
+    }
+  }
+
   def generate(outputDir: String, packageName: String, className: String = "Tables",
     database: String = "devdb", excludedTables: Seq[String] = Seq("databasechangelog", "databasechangeloglock")): Future[Unit] = {
 
@@ -36,13 +44,5 @@ class DatabaseCodeGenerator(config: Config) {
         case Success(_) => println("Successfully wrote code to file")
         case Failure(e) => println(s"Failed to write code to file: ${e.getMessage}")
       }
-  }
-
-  protected def modelFuture(database: String, excludedTables: Seq[String]): Future[Model] = {
-    Database.forConfig(database, config).run {
-      MTable.getTables(None, None, None, Some(Seq("TABLE", "VIEW"))) //TABLE, and VIEW represent metadata, i.e. get database objects which are tables and views
-        .map(_.filterNot(t => excludedTables contains t.name.name))
-        .flatMap(HATPostgresProfile.createModelBuilder(_, ignoreInvalidDefaults = false).buildModel)
-    }
   }
 }

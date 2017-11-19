@@ -74,3 +74,6 @@ trait HATPostgresProfile extends ExPostgresDriver
 }
 
 object HATPostgresProfile extends HATPostgresProfile
+
+trait SlickPostgresDriver extends HATPostgresProfile
+object SlickPostgresDriver extends SlickPostgresDriver

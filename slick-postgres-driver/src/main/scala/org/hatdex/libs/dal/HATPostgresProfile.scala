@@ -67,6 +67,8 @@ trait HATPostgresProfile extends ExPostgresProfile
     }
 
     val toJson: Rep[String] => Rep[JsValue] = SimpleFunction.unary[String, JsValue]("to_jsonb")
+    def toJsonGeneric[T]: Rep[T] => Rep[JsValue] = SimpleFunction.unary[T, JsValue]("to_jsonb")
+    def toJsonGenericOptional[T](c: Rep[T]) = SimpleFunction[Option[JsValue]]("to_jsonb").apply(Seq(c))
     val toTimestamp: Rep[Double] => Rep[Timestamp] = SimpleFunction.unary[Double, Timestamp]("to_timestamp")
     val datePart: (Rep[String], Rep[DateTime]) => Rep[String] = SimpleFunction.binary[String, DateTime, String]("date_part")
     val datePartTimestamp: (Rep[String], Rep[Timestamp]) => Rep[String] = SimpleFunction.binary[String, Timestamp, String]("date_part")

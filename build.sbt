@@ -23,6 +23,7 @@ val root = Project(
   Defaults.coreDefaultSettings,
   publishLocal := {},
   publishM2 := {},
-  publishArtifact := false
+  publishArtifact := false,
+  skip in publish := true
 )
 .aggregate(driver, plugin)

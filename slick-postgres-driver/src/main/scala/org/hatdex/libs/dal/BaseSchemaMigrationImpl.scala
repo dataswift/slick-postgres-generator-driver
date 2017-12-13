@@ -37,6 +37,7 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
   protected def db: JdbcProfile#Backend#Database
   protected val logger: Slf4jLogger
   protected implicit val ec: ExecutionContext
+  protected val changeContexts = "structuresonly,data"
 
   def run(evolutionsConfig: String = "db.default.evolutions"): Future[Unit] = {
     Option(configuration.getStringList(evolutionsConfig)).map(_.asScala).map { migrations =>
@@ -94,14 +95,13 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       val dbConnection = db.createSession().conn
 
       logger.info(s"Liquibase running evolutions $diffFilePath on db: [${dbConnection.getMetaData.getURL}]")
-      val changesets = "structuresonly,data"
       val liquibase = blocking {
         createLiquibase(dbConnection, diffFilePath)
       }
       liquibase.getLog.setLogLevel("severe")
       blocking {
-        listChangesets(liquibase, new Contexts(changesets))
-        Try(liquibase.update(changesets))
+        listChangesets(liquibase, new Contexts(changeContexts))
+        Try(liquibase.update(changeContexts))
           .recover {
             case e =>
               liquibase.forceReleaseLocks()
@@ -125,12 +125,11 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       val dbConnection = db.createSession().conn
 
       logger.info(s"Liquibase rolling back evolutions $diffFilePath on db: [${dbConnection.getMetaData.getURL}]")
-      val changesets = "structuresonly,data"
       val liquibase = blocking {
         createLiquibase(dbConnection, diffFilePath)
       }
       blocking {
-        val contexts = new Contexts(changesets)
+        val contexts = new Contexts(changeContexts)
         val changesetsExecuted = liquibase.getChangeSetStatuses(contexts, new LabelExpression()).asScala.filterNot(_.getWillRun)
         Try(liquibase.rollback(changesetsExecuted.length, contexts, new LabelExpression()))
           .recover {

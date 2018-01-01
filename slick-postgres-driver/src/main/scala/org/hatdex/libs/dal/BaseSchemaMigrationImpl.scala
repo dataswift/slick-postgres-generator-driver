@@ -38,6 +38,8 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
   protected val logger: Slf4jLogger
   protected implicit val ec: ExecutionContext
   protected val changeContexts = "structuresonly,data"
+  protected val defaultSchemaName = "hat"
+  protected val liquibaseSchemaName = "public"
 
   def run(evolutionsConfig: String = "db.default.evolutions"): Future[Unit] = {
     Option(configuration.getStringList(evolutionsConfig)).map(_.asScala).map { migrations =>
@@ -168,8 +170,8 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
 
     val database = DatabaseFactory.getInstance()
       .findCorrectDatabaseImplementation(new JdbcConnection(dbConnection))
-    database.setDefaultSchemaName("hat")
-    database.setLiquibaseSchemaName("public")
+    database.setDefaultSchemaName(defaultSchemaName)
+    database.setLiquibaseSchemaName(liquibaseSchemaName)
     new Liquibase(diffFilePath, resourceAccessor, database)
   }
 }

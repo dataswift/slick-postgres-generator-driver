@@ -1,6 +1,6 @@
 # Scala API wrappers for the HAT
 
-Current Version: 0.0.2-SNAPSHOT
+Current Version: 0.0.5-SNAPSHOT
 
 Slick PostgreSQL Code generator and Driver with useful extensions
 

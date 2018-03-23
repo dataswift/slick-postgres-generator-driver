@@ -14,7 +14,6 @@ cache:
 branches:
   only:
     - master
-    - testing
     - dev
 
 env:
@@ -29,7 +28,7 @@ script:
   - sbt clean
   - sbt ++$TRAVIS_SCALA_VERSION compile
   - sbt ++$TRAVIS_SCALA_VERSION test:compile
-  - sbt ++$TRAVIS_SCALA_VERSION "project hat" coverage test -Dconfig.file=hat/conf/application.test.conf
+  - sbt ++$TRAVIS_SCALA_VERSION "project hat" coverage test
 
 after_success:
   - find $HOME/.sbt -name "*.lock" | xargs rm

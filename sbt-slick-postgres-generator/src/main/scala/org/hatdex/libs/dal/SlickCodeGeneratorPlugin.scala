@@ -32,12 +32,13 @@ object SlickCodeGeneratorPlugin extends AutoPlugin {
     val codegenClassName = settingKey[String]("Class name for the generated DAL file")
     val codegenExcludedTables = settingKey[Seq[String]]("List of tables excluded from generating code for")
     val codegenDatabase = settingKey[String]("Live database from which structures are retrieved")
+    val codegenConfig = settingKey[String]("Configuration to use for the code generator")
 
     // default values for the tasks and settings
     lazy val codegenSettings: Seq[Def.Setting[_]] = Seq(
       gentables := {
         Generator(
-          ConfigFactory.load(ConfigFactory.parseFile((resourceDirectory in Compile).value / "application.conf")), // puts reference.conf underneath,
+          ConfigFactory.load(ConfigFactory.parseFile((resourceDirectory in Compile).value / (codegenConfig in gentables).value)), // puts reference.conf underneath,
           (codegenOutputDir in gentables).value,
           (codegenPackageName in gentables).value,
           (codegenClassName in gentables).value,

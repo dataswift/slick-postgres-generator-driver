@@ -66,7 +66,6 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       val liquibase = blocking {
         createLiquibase(dbConnection, "")
       }
-      liquibase.getLog.setLogLevel("severe")
       blocking {
         Try(liquibase.dropAll())
           .recover {
@@ -100,7 +99,6 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       val liquibase = blocking {
         createLiquibase(dbConnection, diffFilePath)
       }
-      liquibase.getLog.setLogLevel("severe")
       blocking {
         listChangesets(liquibase, new Contexts(changeContexts))
         Try(liquibase.update(changeContexts))

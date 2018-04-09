@@ -22,15 +22,15 @@ object Dependencies {
 
   object Library {
     object Db {
-      val liquibase = "org.liquibase" % "liquibase-maven-plugin" % "3.5.1"
+      val liquibase = "org.liquibase" % "liquibase-maven-plugin" % "3.6.0"
     }
 
     object Slick {
-      private val slickVersion = "3.2.1"
+      private val slickVersion = "3.2.3"
       val slick = "com.typesafe.slick" %% "slick" % slickVersion
       val slickHikari = "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
       val slickCodegen = "com.typesafe.slick" %% "slick-codegen" % slickVersion
-      val slick_pgV = "0.15.4"
+      val slick_pgV = "0.16.0"
       val slickPgCore = "com.github.tminglei" %% "slick-pg_core" % slick_pgV
       val slickPg = "com.github.tminglei" %% "slick-pg" % slick_pgV
       val slickPgJoda = "com.github.tminglei" %% "slick-pg_joda-time" % slick_pgV

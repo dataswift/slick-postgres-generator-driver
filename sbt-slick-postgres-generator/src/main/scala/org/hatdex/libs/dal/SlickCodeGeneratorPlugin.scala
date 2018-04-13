@@ -9,14 +9,21 @@
 package org.hatdex.libs.dal
 
 import java.io.File
+import java.sql.Connection
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ Config, ConfigFactory }
+import liquibase.Liquibase
+import liquibase.database.DatabaseFactory
+import liquibase.database.jvm.JdbcConnection
+import liquibase.resource.FileSystemResourceAccessor
+import org.hatdex.libs.dal.HATPostgresProfile.api._
+import org.slf4j.LoggerFactory
 import sbt.Keys._
 import sbt._
+import slick.jdbc.JdbcProfile
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
-import com.typesafe.config.Config
+import scala.concurrent.{ Await, ExecutionContext }
 
 object SlickCodeGeneratorPlugin extends AutoPlugin {
   // This plugin is automatically enabled for projects
@@ -26,37 +33,68 @@ object SlickCodeGeneratorPlugin extends AutoPlugin {
   object autoImport {
     // configuration points, like the built-in `version`, `libraryDependencies`, or `compile`
     val gentables = taskKey[Seq[File]]("Generates tables.")
+    val updateTestDb = taskKey[String]("Updates testing db.")
 
-    val codegenOutputDir = settingKey[String]("Directory to output the generated DAL file")
+    val codegenBaseDir = settingKey[String]("Directory to output the generated DAL file")
     val codegenPackageName = settingKey[String]("Package for the generated DAL file")
     val codegenClassName = settingKey[String]("Class name for the generated DAL file")
     val codegenExcludedTables = settingKey[Seq[String]]("List of tables excluded from generating code for")
     val codegenDatabase = settingKey[String]("Live database from which structures are retrieved")
     val codegenConfig = settingKey[String]("Configuration to use for the code generator")
+    val codegenEvolutions = settingKey[String]("Configuration to use for database evolutions")
 
     // default values for the tasks and settings
     lazy val codegenSettings: Seq[Def.Setting[_]] = Seq(
       gentables := {
         Generator(
           ConfigFactory.load(ConfigFactory.parseFile((resourceDirectory in Compile).value / (codegenConfig in gentables).value)), // puts reference.conf underneath,
-          (codegenOutputDir in gentables).value,
+          (codegenBaseDir in gentables).value,
           (codegenPackageName in gentables).value,
           (codegenClassName in gentables).value,
           (codegenDatabase in gentables).value,
           (codegenExcludedTables in gentables).value)
-      }
-    //      codegenOutputDir in gentables := (baseDirectory.value / "project").getPath,
-    //      codegenPackageName in gentables := "dal",
-    //      codegenClassName in gentables := "Tables",
-    //      codegenDatabase in gentables := "devdb",
-    //      codegenExcludedTables in gentables := Seq("databasechangelog", "databasechangeloglock")
-    )
+      },
+      updateTestDb := {
+        Updater(
+          ConfigFactory.load(ConfigFactory.parseFile((resourceDirectory in Compile).value / (codegenConfig in gentables).value)), // puts reference.conf underneath,
+          (resourceDirectory in Compile).value.getPath,
+          (codegenDatabase in gentables).value,
+          (codegenEvolutions in gentables).value)
+      })
   }
 
   import autoImport._
 
   // a group of settings that are automatically added to projects.
   override lazy val projectSettings: Seq[Def.Setting[_]] = inConfig(Compile)(codegenSettings)
+
+  object Updater {
+    def apply(config: Config, codegenBaseDir: String, database: String, codegenEvolutions: String): String = {
+
+      val schemaMigration = new BaseSchemaMigrationImpl {
+        protected val configuration: Config = config
+        val db: JdbcProfile#Backend#Database = Database.forConfig(database, config)
+        implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+        protected val logger: org.slf4j.Logger = LoggerFactory.getLogger(this.getClass)
+
+        override protected def createLiquibase(dbConnection: Connection, diffFilePath: String): Liquibase = {
+          val resourceAccessor = new FileSystemResourceAccessor(codegenBaseDir)
+
+          val database = DatabaseFactory.getInstance()
+            .findCorrectDatabaseImplementation(new JdbcConnection(dbConnection))
+          database.setDefaultSchemaName(defaultSchemaName)
+          database.setLiquibaseSchemaName(liquibaseSchemaName)
+
+          new Liquibase(diffFilePath, resourceAccessor, database)
+        }
+      }
+
+      val eventuallyUpdated = schemaMigration.run(codegenEvolutions)
+
+      Await.result(eventuallyUpdated, 5.minutes)
+      s"Evolved $database"
+    }
+  }
 
   object Generator {
     def apply(config: Config, outputDir: String, packageName: String, className: String,

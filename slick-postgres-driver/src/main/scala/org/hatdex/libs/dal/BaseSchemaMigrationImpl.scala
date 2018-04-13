@@ -55,8 +55,13 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
    * Invoke this method to apply all DB migrations.
    */
   def run(changeLogFiles: Seq[String]): Future[Unit] = {
-    logger.info(s"Running schema migrations: ${changeLogFiles.mkString(", ")}")
-    changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) => execution.flatMap { _ => updateDb(evolution) } }
+    logger.error(s"Running schema migrations: ${changeLogFiles.mkString(", ")}")
+    changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) ⇒
+      execution.flatMap { _ ⇒
+        logger.error(s"Running evolution $evolution")
+        updateDb(evolution)
+      }
+    }
   }
 
   def resetDatabase(): Future[Unit] = {
@@ -109,6 +114,7 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
               throw e
           }
         liquibase.forceReleaseLocks()
+        dbConnection.close()
       }
     }
 

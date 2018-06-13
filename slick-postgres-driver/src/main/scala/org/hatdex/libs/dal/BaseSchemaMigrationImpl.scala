@@ -42,13 +42,15 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
   protected val liquibaseSchemaName = "public"
 
   def run(evolutionsConfig: String = "db.default.evolutions"): Future[Unit] = {
-    Option(configuration.getStringList(evolutionsConfig)).map(_.asScala).map { migrations =>
-      logger.info(s"Running database schema migrations on $migrations")
-      run(migrations)
-    } getOrElse {
-      logger.warn("No evolutions configured")
-      Future.successful(())
-    }
+    Option(configuration.getStringList(evolutionsConfig))
+      .map(_.asScala)
+      .map { migrations =>
+        logger.info(s"Running database schema migrations on $migrations")
+        run(migrations)
+      } getOrElse {
+        logger.warn("No evolutions configured")
+        Future.successful(())
+      }
   }
 
   /**
@@ -56,11 +58,17 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
    */
   def run(changeLogFiles: Seq[String]): Future[Unit] = {
     logger.error(s"Running schema migrations: ${changeLogFiles.mkString(", ")}")
-    changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) ⇒
-      execution.flatMap { _ ⇒
-        logger.error(s"Running evolution $evolution")
-        updateDb(evolution)
+    Future(db.createSession().conn).map { dbConnection ⇒
+      changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) ⇒
+        execution.flatMap { _ ⇒
+          logger.error(s"Running evolution $evolution")
+          updateDb(evolution, dbConnection)
+        }
+      } onComplete {
+        _ ⇒ dbConnection.close()
       }
+    } recover {
+      case e ⇒ logger.error(s"Running database evolutions failed: ${e.getMessage}", e)
     }
   }
 
@@ -95,10 +103,8 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
     changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) => execution.flatMap { _ => rollbackDb(evolution) } }
   }
 
-  private def updateDb(diffFilePath: String): Future[Unit] = {
+  private def updateDb(diffFilePath: String, dbConnection: Connection): Future[Unit] = {
     val eventuallyEvolved = Future {
-
-      val dbConnection = db.createSession().conn
 
       logger.info(s"Liquibase running evolutions $diffFilePath on db: [${dbConnection.getMetaData.getURL}]")
       val liquibase = blocking {
@@ -114,7 +120,6 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
               throw e
           }
         liquibase.forceReleaseLocks()
-        dbConnection.close()
       }
     }
 

@@ -37,7 +37,7 @@ class TypemappedPgCodeGenerator(model: Model) extends SourceCodeGenerator(model)
           case "_varchar" => "List[String]"
           case "_text" => "List[String]"
           case "jsonb" => "JsValue"
-          case "_jsonb" => "List[JsValue]"
+          case "_jsonb" => "List[play.api.libs.json.JsValue]"
           case _ => "String"
         }).getOrElse("String")
         case "scala.collection.Seq" => model.options.find(_.isInstanceOf[ColumnOption.SqlType]).map(_.asInstanceOf[ColumnOption.SqlType].typeName).map({
@@ -45,7 +45,7 @@ class TypemappedPgCodeGenerator(model: Model) extends SourceCodeGenerator(model)
           case "_varchar" => "List[String]"
           case "_int4" => "List[Int]"
           case "_int8" => "List[Long]"
-          //          case "_jsonb" => "List[JsValue]"
+          case "_jsonb" => "List[play.api.libs.json.JsValue]"
           case _ => "String"
         }).getOrElse("String")
         case _ => super.rawType

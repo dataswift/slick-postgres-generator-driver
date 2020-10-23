@@ -27,6 +27,7 @@ script:
 - sbt ++$TRAVIS_SCALA_VERSION compile
 - sbt ++$TRAVIS_SCALA_VERSION test:compile
 - sbt ++$TRAVIS_SCALA_VERSION coverage test
+- sbt driver/it:test
 after_success:
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm

@@ -49,7 +49,7 @@ object Dependencies {
 
     object ScalaTest {
       private val version = "3.2.2"
-      val test = "org.scalatest" %% "scalatest" % version % Test
+      val test = "org.scalatest" %% "scalatest" % version % IntegrationTest
     }
 
     object TestContainers {

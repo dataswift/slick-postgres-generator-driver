@@ -28,6 +28,12 @@ lazy val driver = project.in(file("slick-postgres-driver"))
     }
   )
   .configs(IntegrationTest)
+  .settings(
+    Defaults.itSettings,
+    fork in IntegrationTest := true,
+    envVars in IntegrationTest := Map("TESTCONTAINERS_RYUK_DISABLED" -> "true")
+  )
+
 
 lazy val plugin = project.in(file("sbt-slick-postgres-generator"))
   .enablePlugins(BasicSettings)

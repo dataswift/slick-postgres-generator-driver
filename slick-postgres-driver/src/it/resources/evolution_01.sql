@@ -1,0 +1,4 @@
+CREATE TABLE table_one(
+  id    INTEGER NOT NULL PRIMARY KEY,
+  value JSONB   NOT NULL
+);

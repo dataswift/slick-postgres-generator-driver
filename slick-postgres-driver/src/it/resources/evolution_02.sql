@@ -1,0 +1,2 @@
+ALTER TABLE table_one
+ADD COLUMN type VARCHAR;

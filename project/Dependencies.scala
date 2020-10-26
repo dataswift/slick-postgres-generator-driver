@@ -11,16 +11,18 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val crossScala = Seq("2.12.4")
+    val crossScala = Seq("2.12.12")
     val scalaVersion = crossScala.head
   }
 
   val resolvers = Seq(
     "Atlassian Releases" at "https://maven.atlassian.com/public/",
-    "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
-    "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
+    Resolver.bintrayRepo("scalaz", "releases"),
+    Resolver.sonatypeRepo("snapshots")
+  )
 
   object Library {
+
     object Db {
       val liquibase = "org.liquibase" % "liquibase-maven-plugin" % "3.6.0"
     }
@@ -44,5 +46,18 @@ object Dependencies {
       val jodaTime = "joda-time" % "joda-time" % "2.9.9"
       val slf4j = "org.slf4j" % "slf4j-api" % "1.7.18"
     }
+
+    object ScalaTest {
+      private val version = "3.2.2"
+      val test = "org.scalatest" %% "scalatest" % version % IntegrationTest
+    }
+
+    object TestContainers {
+      private val version = "0.38.4"
+      val scalaTest = "com.dimafeng" %% "testcontainers-scala-scalatest" % version % IntegrationTest
+      val postgresql = "com.dimafeng" %% "testcontainers-scala-postgresql" % version % IntegrationTest
+    }
+
   }
+
 }

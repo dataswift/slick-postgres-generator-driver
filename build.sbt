@@ -1,12 +1,10 @@
-import sbt.Keys.sbtPlugin
 import Dependencies.Library
-import sbt.Keys._
 
 lazy val driver = project.in(file("slick-postgres-driver"))
   .enablePlugins(BasicSettings)
   .settings(
     name := "slick-postgres-driver",
-    crossScalaVersions := Seq("2.12.4", "2.11.8")
+    crossScalaVersions := Seq("2.12.12", "2.11.12")
   )
   .settings(
     libraryDependencies ++= Seq(
@@ -17,7 +15,11 @@ lazy val driver = project.in(file("slick-postgres-driver"))
       Library.Slick.slickPg,
       Library.Slick.slickPgCore,
       Library.Slick.slickPgJoda,
-      Library.Slick.slickPgPlayJson)
+      Library.Slick.slickPgPlayJson,
+      Library.ScalaTest.test,
+      Library.TestContainers.scalaTest,
+      Library.TestContainers.postgresql
+    )
   )
   .settings(
     publishTo := {
@@ -25,6 +27,13 @@ lazy val driver = project.in(file("slick-postgres-driver"))
       Some(s3resolver.value("HAT Library Artifacts " + prefix, s3("library-artifacts-" + prefix + ".hubofallthings.com")) withMavenPatterns)
     }
   )
+  .configs(IntegrationTest)
+  .settings(
+    Defaults.itSettings,
+    fork in IntegrationTest := true,
+    envVars in IntegrationTest := Map("TESTCONTAINERS_RYUK_DISABLED" -> "true")
+  )
+
 
 lazy val plugin = project.in(file("sbt-slick-postgres-generator"))
   .enablePlugins(BasicSettings)

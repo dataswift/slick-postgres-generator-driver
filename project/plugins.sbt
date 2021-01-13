@@ -11,3 +11,5 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 // S3 based SBT resolver
 resolvers += Resolver.jcenterRepo
 addSbtPlugin("ohnosequences" % "sbt-s3-resolver" % "0.18.0")
+
+addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.1.1")

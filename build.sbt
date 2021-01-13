@@ -4,7 +4,7 @@ lazy val commonSettings = Seq(
   publishMavenStyle := true,
   publishTo := {
     val prefix = if (isSnapshot.value) "snapshots" else "releases"
-    Some(s"Models$prefix" at s"s3://library-artifacts-$prefix.hubofallthings.com")
+    Some(s"HAT Library Artifacts $prefix" at s"s3://library-artifacts-$prefix.hubofallthings.com")
   },
   resolvers += "HAT Library Artifacts Releases" at "https://s3-eu-west-1.amazonaws.com/library-artifacts-releases.hubofallthings.com",
   resolvers += "HAT Library Artifacts Snapshots" at "https://s3-eu-west-1.amazonaws.com/library-artifacts-snapshots.hubofallthings.com"

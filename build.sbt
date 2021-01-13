@@ -1,10 +1,21 @@
 import Dependencies.Library
 
+lazy val commonSettings = Seq(
+  publishMavenStyle := true,
+  publishTo := {
+    val prefix = if (isSnapshot.value) "snapshots" else "releases"
+    Some(s"HAT Library Artifacts $prefix" at s"s3://library-artifacts-$prefix.hubofallthings.com")
+  },
+  resolvers += "HAT Library Artifacts Releases" at "https://s3-eu-west-1.amazonaws.com/library-artifacts-releases.hubofallthings.com",
+  resolvers += "HAT Library Artifacts Snapshots" at "https://s3-eu-west-1.amazonaws.com/library-artifacts-snapshots.hubofallthings.com"
+)
+
 lazy val driver = project.in(file("slick-postgres-driver"))
   .enablePlugins(BasicSettings)
   .settings(
     name := "slick-postgres-driver",
-    crossScalaVersions := Seq("2.12.12", "2.11.12")
+    crossScalaVersions := Seq("2.12.12", "2.11.12"),
+    commonSettings
   )
   .settings(
     libraryDependencies ++= Seq(
@@ -21,12 +32,6 @@ lazy val driver = project.in(file("slick-postgres-driver"))
       Library.TestContainers.postgresql
     )
   )
-  .settings(
-    publishTo := {
-      val prefix = if (isSnapshot.value) "snapshots" else "releases"
-      Some(s3resolver.value("HAT Library Artifacts " + prefix, s3("library-artifacts-" + prefix + ".hubofallthings.com")) withMavenPatterns)
-    }
-  )
   .configs(IntegrationTest)
   .settings(
     Defaults.itSettings,
@@ -39,7 +44,8 @@ lazy val plugin = project.in(file("sbt-slick-postgres-generator"))
   .enablePlugins(BasicSettings)
   .settings(
     name := "sbt-slick-postgres-generator",
-    sbtPlugin := true
+    sbtPlugin := true,
+    commonSettings
   )
   .settings(
     libraryDependencies ++= Seq(
@@ -50,12 +56,6 @@ lazy val plugin = project.in(file("sbt-slick-postgres-generator"))
       Library.Slick.slickPgCore,
       Library.Slick.slickPgJoda,
       Library.Slick.slickPgPlayJson)
-  )
-  .settings(
-    publishTo := {
-      val prefix = if (isSnapshot.value) "snapshots" else "releases"
-      Some(s3resolver.value("HAT Library Artifacts " + prefix, s3("library-artifacts-" + prefix + ".hubofallthings.com")) withMavenPatterns)
-    }
   )
   .dependsOn(driver)
 

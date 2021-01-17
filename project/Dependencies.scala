@@ -24,7 +24,7 @@ object Dependencies {
   object Library {
 
     object Db {
-      val liquibase = "org.liquibase" % "liquibase-maven-plugin" % "3.6.0"
+      val liquibase = "org.liquibase" % "liquibase-maven-plugin" % "3.6.3"
     }
 
     object Slick {

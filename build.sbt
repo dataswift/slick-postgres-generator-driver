@@ -14,7 +14,7 @@ lazy val driver = project.in(file("slick-postgres-driver"))
   .enablePlugins(BasicSettings)
   .settings(
     name := "slick-postgres-driver",
-    crossScalaVersions := Seq("2.12.12", "2.11.12"),
+    crossScalaVersions := Seq("2.13.4", "2.12.12"),
     commonSettings
   )
   .settings(

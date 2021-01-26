@@ -18,7 +18,7 @@ import liquibase.{ Contexts, LabelExpression, Liquibase }
 import org.slf4j.{ Logger => Slf4jLogger }
 import slick.jdbc.JdbcProfile
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.{ ExecutionContext, Future, blocking }
 import scala.util.control.NonFatal
 
@@ -46,7 +46,7 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       .map(_.asScala)
       .map { migrations =>
         logger.info(s"Running database schema migrations on $migrations")
-        run(migrations)
+        run(migrations.toString())
       } getOrElse {
         logger.warn("No evolutions configured")
         Future.successful(())

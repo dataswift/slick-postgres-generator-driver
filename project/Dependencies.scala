@@ -11,8 +11,8 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val crossScala = Seq("2.12.12")
-    val scalaVersion = crossScala.head
+    val crossScala = Seq("2.13.4", "2.12.12")
+    val scalaVersion: String = crossScala.head
   }
 
   val resolvers = Seq(
@@ -28,11 +28,11 @@ object Dependencies {
     }
 
     object Slick {
-      private val slickVersion = "3.2.3"
+      private val slickVersion = "3.3.3"
       val slick = "com.typesafe.slick" %% "slick" % slickVersion
       val slickHikari = "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
       val slickCodegen = "com.typesafe.slick" %% "slick-codegen" % slickVersion
-      val slick_pgV = "0.16.0"
+      val slick_pgV = "0.19.4"
       val slickPgCore = "com.github.tminglei" %% "slick-pg_core" % slick_pgV
       val slickPg = "com.github.tminglei" %% "slick-pg" % slick_pgV
       val slickPgJoda = "com.github.tminglei" %% "slick-pg_joda-time" % slick_pgV

@@ -25,4 +25,4 @@ jobs:
           architecture: x64
 
       - name: Run tests
-        run: sbt clean +test
+        run: sbt clean +test +it:test

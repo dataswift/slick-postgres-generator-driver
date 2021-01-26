@@ -10,11 +10,6 @@ import sbt._
 
 object Dependencies {
 
-  object Versions {
-    val crossScala = Seq("2.13.4", "2.12.12")
-    val scalaVersion: String = crossScala.head
-  }
-
   val resolvers = Seq(
     "Atlassian Releases" at "https://maven.atlassian.com/public/",
     Resolver.bintrayRepo("scalaz", "releases"),

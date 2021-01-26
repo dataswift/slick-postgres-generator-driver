@@ -24,9 +24,6 @@ object BasicSettings extends AutoPlugin {
       "-Ywarn-nullary-override" // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
     )
 
-  val scalacOptions213Only =
-    Seq()
-
   val scalacOptionsCommon =
     Seq(
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
@@ -42,8 +39,6 @@ object BasicSettings extends AutoPlugin {
   override def projectSettings = Seq(
     organization := "org.hatdex",
     resolvers ++= Dependencies.resolvers,
-    scalaVersion := Dependencies.Versions.scalaVersion,
-    crossScalaVersions := Dependencies.Versions.crossScala,
     name := "slick-postgres-generator-driver",
     description := "Slick PostgreSQL Code generator and Driver with useful extensions",
     licenses += ("Mozilla Public License 2.0", url("https://www.mozilla.org/en-US/MPL/2.0")),
@@ -65,8 +60,7 @@ object BasicSettings extends AutoPlugin {
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 12)) => scalacOptions212Only ++ scalacOptionsCommon
-        case Some((2, 13)) => scalacOptions213Only ++ scalacOptionsCommon
-        case _             => scalacOptionsCommon
+        case Some((2, 13)) => scalacOptionsCommon
       }
     },
     scalacOptions in Test ~= { (options: Seq[String]) =>

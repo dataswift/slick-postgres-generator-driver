@@ -8,18 +8,14 @@
 
 package org.hatdex.libs.dal
 
-import java.sql.Connection
-
-import com.typesafe.config.Config
 import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
 import liquibase.{ Contexts, LabelExpression, Liquibase }
-import org.slf4j.{ Logger => Slf4jLogger }
-import slick.jdbc.JdbcProfile
 
-import scala.jdk.CollectionConverters._
-import scala.concurrent.{ ExecutionContext, Future, blocking }
+import java.sql.Connection
+import scala.collection.JavaConverters._
+import scala.concurrent.{ Future, blocking }
 import scala.util.control.NonFatal
 
 /**
@@ -31,22 +27,13 @@ import scala.util.control.NonFatal
  *
  * It does not matter which module runs this migration first.
  */
-trait BaseSchemaMigrationImpl extends SchemaMigration {
-
-  protected val configuration: Config
-  protected def db: JdbcProfile#Backend#Database
-  protected val logger: Slf4jLogger
-  protected implicit val ec: ExecutionContext
-  protected val changeContexts = "structuresonly,data"
-  protected val defaultSchemaName = "hat"
-  protected val liquibaseSchemaName = "public"
+trait BaseSchemaMigrationImpl extends BaseSchemaMigration {
 
   def run(evolutionsConfig: String = "db.default.evolutions"): Future[Unit] =
-    Option(configuration.getStringList(evolutionsConfig))
-      .map(_.asScala)
+    Option(configuration.getStringList(evolutionsConfig).asScala.toList)
       .map { migrations =>
         logger.info(s"Running database schema migrations on $migrations")
-        run(migrations.toString())
+        run(migrations)
       } getOrElse {
         logger.warn("No evolutions configured")
         Future.successful(())

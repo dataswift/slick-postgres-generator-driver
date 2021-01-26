@@ -24,8 +24,5 @@ jobs:
           java-package: jdk
           architecture: x64
 
-      - name: Run Scala 2.12 tests
-        run: sbt clean compile test it:test
-
-      - name: Run Scala 2.13 integration tests
-        run: sbt "++ 2.13.4 clean;driver/it:test"
+      - name: Run tests
+        run: sbt clean +compile test it:test

@@ -5,8 +5,7 @@ val scala213 = "2.13.4"
 
 inThisBuild(
   List(
-    scalaVersion := scala212,
-    version := "0.1.0"
+    scalaVersion := scala212
   )
 )
 

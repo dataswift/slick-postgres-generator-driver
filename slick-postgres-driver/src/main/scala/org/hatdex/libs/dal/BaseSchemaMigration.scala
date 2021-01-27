@@ -1,52 +1,36 @@
-/*
- * Copyright (C) $year HAT Data Exchange Ltd - All Rights Reserved
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * Written by Andrius Aucinas <andrius.aucinas@hatdex.org>, 14/08/17 09:17
- */
-
 package org.hatdex.libs.dal
-
-import java.sql.Connection
 
 import com.typesafe.config.Config
 import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
 import liquibase.resource.ClassLoaderResourceAccessor
 import liquibase.{ Contexts, LabelExpression, Liquibase }
-import org.slf4j.{ Logger => Slf4jLogger }
 import slick.jdbc.JdbcProfile
+import org.slf4j.{ Logger => Slf4jLogger }
 
-import scala.collection.JavaConverters._
-import scala.concurrent.{ ExecutionContext, Future, blocking }
+import java.sql.Connection
+import scala.concurrent.{ blocking, ExecutionContext, Future }
 import scala.util.control.NonFatal
 
-/**
- * Runs Liquibase based database schema and data migrations. This is the only place for all related
- * modules to run updates from.
- *
- * Liquibase finds its files on the classpath and applies them to DB. If migration fails
- * this class will throw an exception and by default your application should not continue to run.
- *
- * It does not matter which module runs this migration first.
- */
-trait BaseSchemaMigrationImpl extends SchemaMigration {
+trait BaseSchemaMigration extends SchemaMigration {
 
   protected val configuration: Config
+
   protected def db: JdbcProfile#Backend#Database
+
   protected val logger: Slf4jLogger
-  protected implicit val ec: ExecutionContext
+  implicit protected val ec: ExecutionContext
   protected val changeContexts = "structuresonly,data"
   protected val defaultSchemaName = "hat"
   protected val liquibaseSchemaName = "public"
 
+  def convertJavaList[T](list: java.util.List[T]): List[T]
+
   def run(evolutionsConfig: String = "db.default.evolutions"): Future[Unit] =
     Option(configuration.getStringList(evolutionsConfig))
-      .map(_.asScala)
       .map { migrations =>
         logger.info(s"Running database schema migrations on $migrations")
-        run(migrations)
+        run(convertJavaList(migrations))
       } getOrElse {
         logger.warn("No evolutions configured")
         Future.successful(())
@@ -84,10 +68,14 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
 
   def rollback(changeLogFiles: Seq[String]): Future[Unit] = {
     logger.info(s"Rolling back schema migrations: ${changeLogFiles.mkString(", ")}")
-    changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) => execution.flatMap { _ => rollbackDb(evolution) } }
+    changeLogFiles.foldLeft(Future.successful(())) { (execution, evolution) =>
+      execution.flatMap(_ => rollbackDb(evolution))
+    }
   }
 
-  private def updateDb(diffFilePath: String, dbConnection: Connection): Future[Unit] =
+  private def updateDb(
+    diffFilePath: String,
+    dbConnection: Connection): Future[Unit] =
     Future {
       blocking {
         logger.info(s"Liquibase running evolutions $diffFilePath on db: [${dbConnection.getMetaData.getURL}]")
@@ -109,7 +97,8 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
         logger.info(s"Liquibase rolling back evolutions $diffFilePath on db: [${dbConnection.getMetaData.getURL}]")
         val liquibase = createLiquibase(dbConnection, diffFilePath)
         val contexts = new Contexts(changeContexts)
-        val changesetsExecuted = liquibase.getChangeSetStatuses(contexts, new LabelExpression()).asScala.filterNot(_.getWillRun)
+        val changesetsExecuted =
+          convertJavaList(liquibase.getChangeSetStatuses(contexts, new LabelExpression())).filterNot(_.getWillRun)
         try liquibase.rollback(changesetsExecuted.length, contexts, new LabelExpression())
         catch {
           case NonFatal(th) =>
@@ -119,25 +108,30 @@ trait BaseSchemaMigrationImpl extends SchemaMigration {
       }
     }
 
-  private def listChangesets(liquibase: Liquibase, contexts: Contexts): Unit = {
-    val changesetStatuses = liquibase.getChangeSetStatuses(contexts, new LabelExpression()).asScala
+  private def listChangesets(
+    liquibase: Liquibase,
+    contexts: Contexts): Unit = {
+    val changesetStatuses = convertJavaList(liquibase.getChangeSetStatuses(contexts, new LabelExpression()))
     logger.info("Existing changesets:")
     changesetStatuses.foreach { cs =>
-      if (cs.getWillRun) {
+      if (cs.getWillRun)
         logger.info(s"${cs.getChangeSet.toString} will run")
-      } else {
+      else
         logger.info(s"${cs.getChangeSet.toString} will not run - previously executed on ${cs.getDateLastExecuted}")
-      }
     }
   }
 
-  protected def createLiquibase(dbConnection: Connection, diffFilePath: String): Liquibase = {
+  protected def createLiquibase(
+    dbConnection: Connection,
+    diffFilePath: String): Liquibase = {
     val classLoader = configuration.getClass.getClassLoader
     val resourceAccessor = new ClassLoaderResourceAccessor(classLoader)
-    val database = DatabaseFactory.getInstance()
+    val database = DatabaseFactory
+      .getInstance()
       .findCorrectDatabaseImplementation(new JdbcConnection(dbConnection))
     database.setDefaultSchemaName(defaultSchemaName)
     database.setLiquibaseSchemaName(liquibaseSchemaName)
     new Liquibase(diffFilePath, resourceAccessor, database)
   }
+
 }

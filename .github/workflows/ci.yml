@@ -24,14 +24,5 @@ jobs:
           java-package: jdk
           architecture: x64
 
-      - name: Clean
-        run: sbt clean
-
-      - name: Compile
-        run: sbt +compile
-
-      - name: Test - Compile 
-        run: sbt +test:compile
-
-      - name: Test
-        run: sbt +test
+      - name: Run tests
+        run: sbt clean +test +it:test

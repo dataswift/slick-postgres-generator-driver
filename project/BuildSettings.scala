@@ -16,11 +16,29 @@ import sbt._
 object BasicSettings extends AutoPlugin {
   override def trigger = allRequirements
 
+  // * Scalac Options
+  val scalacOptions212Only =
+    Seq(
+      "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver.
+      "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures.
+      "-Ywarn-nullary-override" // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
+    )
+
+  val scalacOptionsCommon =
+    Seq(
+      "-deprecation", // Emit warning and location for usages of deprecated APIs.
+      "-feature", // Emit warning and location for usages of features that should be imported explicitly.
+      "-unchecked", // Enable additional warnings where generated code depends on assumptions.
+      "-Xfatal-warnings", // Fail the compilation if there are any warnings.
+      "-Xlint", // Enable recommended additional warnings.
+      "-Ywarn-dead-code", // Warn when dead code is identified.
+      "-language:postfixOps", // Allow postfix operators
+      "-Ywarn-numeric-widen" // Warn when numerics are widened.
+    )
+
   override def projectSettings = Seq(
     organization := "org.hatdex",
     resolvers ++= Dependencies.resolvers,
-    scalaVersion := Dependencies.Versions.scalaVersion,
-    crossScalaVersions := Dependencies.Versions.crossScala,
     name := "slick-postgres-generator-driver",
     description := "Slick PostgreSQL Code generator and Driver with useful extensions",
     licenses += ("Mozilla Public License 2.0", url("https://www.mozilla.org/en-US/MPL/2.0")),
@@ -39,19 +57,12 @@ object BasicSettings extends AutoPlugin {
         url   = url("http://smart-e.org")
       )
     ),
-    scalacOptions ++= Seq(
-      "-deprecation", // Emit warning and location for usages of deprecated APIs.
-      "-feature", // Emit warning and location for usages of features that should be imported explicitly.
-      "-unchecked", // Enable additional warnings where generated code depends on assumptions.
-      "-Xfatal-warnings", // Fail the compilation if there are any warnings.
-      "-Xlint", // Enable recommended additional warnings.
-      "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver.
-      "-Ywarn-dead-code", // Warn when dead code is identified.
-      "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures.
-      "-Ywarn-nullary-override", // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
-      "-language:postfixOps", // Allow postfix operators
-      "-Ywarn-numeric-widen" // Warn when numerics are widened.
-      ),
+    scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 12)) => scalacOptions212Only ++ scalacOptionsCommon
+        case Some((2, 13)) => scalacOptionsCommon
+      }
+    },
     scalacOptions in Test ~= { (options: Seq[String]) =>
       options filterNot (_ == "-Ywarn-dead-code") // Allow dead code in tests (to support using mockito).
     },

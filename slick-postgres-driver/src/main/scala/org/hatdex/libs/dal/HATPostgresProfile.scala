@@ -24,10 +24,10 @@ trait HATPostgresProfile extends ExPostgresProfile
   with PgPlayJsonSupport {
 
   override val pgjson = "jsonb"
-  override val api = new API {}
+  override val api = new HatAPI {}
   override protected lazy val useTransactionForUpsert = false
 
-  trait API extends super.API
+  trait HatAPI extends super.API
     with ArrayImplicits
     with DateTimeImplicits
     with RangeImplicits

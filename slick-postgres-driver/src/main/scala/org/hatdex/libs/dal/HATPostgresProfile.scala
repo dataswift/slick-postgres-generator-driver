@@ -15,7 +15,8 @@ import org.joda.time.DateTime
 import play.api.libs.json.{ JsValue, Json }
 import slick.jdbc.JdbcType
 
-trait HATPostgresProfile extends ExPostgresProfile
+trait HATPostgresProfile
+  extends ExPostgresProfile
   with PgArraySupport
   with PgDateSupportJoda
   with PgRangeSupport
@@ -27,9 +28,10 @@ trait HATPostgresProfile extends ExPostgresProfile
   override val api = new HatAPI {}
   override protected lazy val useTransactionForUpsert = false
 
-  trait HatAPI extends super.API
+  trait HatAPI
+    extends super.API
     with ArrayImplicits
-    with DateTimeImplicits
+    with JodaDateTimeImplicits
     with RangeImplicits
     with HStoreImplicits
     with SearchImplicits
@@ -39,39 +41,40 @@ trait HATPostgresProfile extends ExPostgresProfile
     implicit val playJsonArrayTypeMapper: DriverJdbcType[List[JsValue]] =
       new AdvancedArrayJdbcType[JsValue](
         pgjson,
-        (s) => utils.SimpleArrayUtils.fromString[JsValue](Json.parse(_))(s).orNull,
-        (v) => utils.SimpleArrayUtils.mkString[JsValue](_.toString())(v)).to(_.toList)
+        s => utils.SimpleArrayUtils.fromString[JsValue](Json.parse(_))(s).orNull,
+        v => utils.SimpleArrayUtils.mkString[JsValue](_.toString())(v)).to(_.toList)
 
     import scala.language.implicitConversions
 
-    override implicit val playJsonTypeMapper: JdbcType[JsValue] =
+    implicit override val playJsonTypeMapper: JdbcType[JsValue] =
       new GenericJdbcType[JsValue](
         pgjson,
-        (v) => Json.parse(v),
-        (v) => Json.stringify(v).replace("\\u0000", ""),
+        v => Json.parse(v),
+        v => Json.stringify(v).replace("\\u0000", ""),
         hasLiteralForm = false)
 
-    override implicit def playJsonColumnExtensionMethods(c: Rep[JsValue]): FixedJsonColumnExtensionMethods[JsValue, JsValue] = {
+    implicit override def playJsonColumnExtensionMethods(
+      c: Rep[JsValue]): FixedJsonColumnExtensionMethods[JsValue, JsValue] =
       new FixedJsonColumnExtensionMethods[JsValue, JsValue](c)
-    }
-    override implicit def playJsonOptionColumnExtensionMethods(c: Rep[Option[JsValue]]): FixedJsonColumnExtensionMethods[JsValue, Option[JsValue]] = {
+    implicit override def playJsonOptionColumnExtensionMethods(
+      c: Rep[Option[JsValue]]): FixedJsonColumnExtensionMethods[JsValue, Option[JsValue]] =
       new FixedJsonColumnExtensionMethods[JsValue, Option[JsValue]](c)
-    }
 
-    class FixedJsonColumnExtensionMethods[JSONType, P1](override val c: Rep[P1])(
-      implicit
-      tm: JdbcType[JSONType]) extends JsonColumnExtensionMethods[JSONType, P1](c) {
-      override def <@:[P2, R](c2: Rep[P2])(implicit om: o#arg[JSONType, P2]#to[Boolean, R]) = {
+    class FixedJsonColumnExtensionMethods[JSONType, P1](
+      override val c: Rep[P1])(implicit tm: JdbcType[JSONType])
+      extends JsonColumnExtensionMethods[JSONType, P1](c) {
+      override def <@:[P2, R](c2: Rep[P2])(implicit om: o#arg[JSONType, P2]#to[Boolean, R]) =
         om.column(jsonLib.ContainsBy, n, c2.toNode)
-      }
     }
 
     val toJson: Rep[String] => Rep[JsValue] = SimpleFunction.unary[String, JsValue]("to_jsonb")
     def toJsonGeneric[T]: Rep[T] => Rep[JsValue] = SimpleFunction.unary[T, JsValue]("to_jsonb")
     def toJsonGenericOptional[T](c: Rep[T]) = SimpleFunction[Option[JsValue]]("to_jsonb").apply(Seq(c))
     val toTimestamp: Rep[Double] => Rep[Timestamp] = SimpleFunction.unary[Double, Timestamp]("to_timestamp")
-    val datePart: (Rep[String], Rep[DateTime]) => Rep[String] = SimpleFunction.binary[String, DateTime, String]("date_part")
-    val datePartTimestamp: (Rep[String], Rep[Timestamp]) => Rep[String] = SimpleFunction.binary[String, Timestamp, String]("date_part")
+    val datePart: (Rep[String], Rep[DateTime]) => Rep[String] =
+      SimpleFunction.binary[String, DateTime, String]("date_part")
+    val datePartTimestamp: (Rep[String], Rep[Timestamp]) => Rep[String] =
+      SimpleFunction.binary[String, Timestamp, String]("date_part")
   }
 
 }

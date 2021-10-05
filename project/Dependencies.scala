@@ -48,7 +48,7 @@ object Dependencies {
     }
 
     object TestContainers {
-      private val version = "0.38.4"
+      private val version = "0.38.9"
       val scalaTest = "com.dimafeng" %% "testcontainers-scala-scalatest" % version % IntegrationTest
       val postgresql = "com.dimafeng" %% "testcontainers-scala-postgresql" % version % IntegrationTest
     }

@@ -38,17 +38,17 @@ object Dependencies {
     }
 
     object Utils {
-      val jodaTime = "joda-time" % "joda-time" % "2.9.9"
-      val slf4j = "org.slf4j" % "slf4j-api" % "1.7.18"
+      val jodaTime = "joda-time" % "joda-timec" % "2.10.12"
+      val slf4j = "org.slf4j" % "slf4j-api" % "1.7.32"
     }
 
     object ScalaTest {
-      private val version = "3.2.2"
+      private val version = "3.2.10"
       val test = "org.scalatest" %% "scalatest" % version % IntegrationTest
     }
 
     object TestContainers {
-      private val version = "0.38.4"
+      private val version = "0.39.8"
       val scalaTest = "com.dimafeng" %% "testcontainers-scala-scalatest" % version % IntegrationTest
       val postgresql = "com.dimafeng" %% "testcontainers-scala-postgresql" % version % IntegrationTest
     }

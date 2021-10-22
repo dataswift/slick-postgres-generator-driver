@@ -1,11 +1,11 @@
 import Dependencies.Library
 
-val scala212 = "2.12.13"
-val scala213 = "2.13.4"
+//val scala212 = "2.12.13"
+val scala213 = "2.13.6"
 
 inThisBuild(
   List(
-    scalaVersion := scala212
+    scalaVersion := scala213
   )
 )
 
@@ -24,9 +24,8 @@ lazy val driver = project
   .enablePlugins(BasicSettings)
   .settings(
     name := "slick-postgres-driver",
-    commonSettings,
-    crossScalaVersions := Seq(scala212, scala213),
-    scalaVersion := scala212
+    commonSettings
+//    crossScalaVersions := Seq(scala212, scala213),
   )
   .settings(
     libraryDependencies ++= Seq(
@@ -46,30 +45,30 @@ lazy val driver = project
   .configs(IntegrationTest)
   .settings(
     Defaults.itSettings,
-    fork in IntegrationTest := true,
-    envVars in IntegrationTest := Map("TESTCONTAINERS_RYUK_DISABLED" -> "true")
+    IntegrationTest / fork := true,
+    IntegrationTest / envVars := Map("TESTCONTAINERS_RYUK_DISABLED" -> "true")
   )
 
-lazy val plugin = project
-  .in(file("sbt-slick-postgres-generator"))
-  .enablePlugins(BasicSettings)
-  .settings(
-    name := "sbt-slick-postgres-generator",
-    sbtPlugin := true,
-    commonSettings
-  )
-  .settings(
-    libraryDependencies ++= Seq(
-          Library.Db.liquibase,
-          Library.Slick.slickCodegen,
-          Library.Slick.slickHikari,
-          Library.Slick.slickPg,
-          Library.Slick.slickPgCore,
-          Library.Slick.slickPgJoda,
-          Library.Slick.slickPgPlayJson
-        )
-  )
-  .dependsOn(driver)
+//lazy val plugin = project
+//  .in(file("sbt-slick-postgres-generator"))
+//  .enablePlugins(BasicSettings)
+//  .settings(
+//    name := "sbt-slick-postgres-generator",
+//    sbtPlugin := true,
+//    commonSettings
+//  )
+//  .settings(
+//    libraryDependencies ++= Seq(
+//          Library.Db.liquibase,
+//          Library.Slick.slickCodegen,
+//          Library.Slick.slickHikari,
+//          Library.Slick.slickPg,
+//          Library.Slick.slickPgCore,
+//          Library.Slick.slickPgJoda,
+//          Library.Slick.slickPgPlayJson
+//        )
+//  )
+//  .dependsOn(driver)
 
 lazy val genDriver = project
   .in(file("."))
@@ -77,9 +76,9 @@ lazy val genDriver = project
     publishLocal := {},
     publishM2 := {},
     publishArtifact := false,
-    skip in publish := true
+    publish / skip := true
   )
   .settings(
     name := "slick-postgres-generator-driver"
   )
-  .aggregate(driver, plugin)
+  .aggregate(driver)

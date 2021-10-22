@@ -17,12 +17,12 @@ object BasicSettings extends AutoPlugin {
   override def trigger = allRequirements
 
   // * Scalac Options
-  val scalacOptions212Only =
-    Seq(
-      "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver.
-      "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures.
-      "-Ywarn-nullary-override" // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
-    )
+//  val scalacOptions212Only =
+//    Seq(
+//      "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver.
+//      "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures.
+//      "-Ywarn-nullary-override" // Warn when non-nullary overrides nullary, e.g. def foo() over def foo.
+//    )
 
   val scalacOptionsCommon =
     Seq(
@@ -58,16 +58,13 @@ object BasicSettings extends AutoPlugin {
       )
     ),
     scalacOptions ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 12)) => scalacOptions212Only ++ scalacOptionsCommon
-        case Some((2, 13)) => scalacOptionsCommon
-      }
+      scalacOptionsCommon
     },
-    scalacOptions in Test ~= { (options: Seq[String]) =>
+    Test / scalacOptions ~= { (options: Seq[String]) =>
       options filterNot (_ == "-Ywarn-dead-code") // Allow dead code in tests (to support using mockito).
     },
-    parallelExecution in Test := false,
-    fork in Test := true,
+    Test / parallelExecution := false,
+    Test / fork := true,
     // Needed to avoid https://github.com/travis-ci/travis-ci/issues/3775 in forked tests
     // in Travis with `sudo: false`.
     // See https://github.com/sbt/sbt/issues/653

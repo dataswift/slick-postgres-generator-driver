@@ -23,7 +23,7 @@ object Dependencies {
     }
 
     object Slick {
-      private val slickVersion = "3.3.3"
+      private val slickVersion = "3.4.0"
       val slick = "com.typesafe.slick" %% "slick" % slickVersion
       val slickHikari = "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
       val slickCodegen = "com.typesafe.slick" %% "slick-codegen" % slickVersion

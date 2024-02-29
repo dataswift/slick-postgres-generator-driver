@@ -1,7 +1,7 @@
 import Dependencies.Library
 
 //val scala212 = "2.12.13"
-val scala213 = "2.13.6"
+val scala213 = "2.13.13"
 
 inThisBuild(
   List(
